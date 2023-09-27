@@ -7,7 +7,7 @@
 # TODOs:
 # 
 # [X] Create the "Game Master" class, that will control the game loop;
-# [ ] Generate the game board and randomize the positions of the ships;
+# [X] Generate the game board and randomize the positions of the ships;
 # [ ] Display everything correctly in a regular terminal window (80x24);
 # [ ] Make the player able to shoot at a specific position in the board;
 # [ ] Create the points system;
