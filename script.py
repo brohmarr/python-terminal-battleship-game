@@ -23,6 +23,7 @@ class Ship:
         self.size = size
         self.angle = rnd.randint(0, 1)
         self.coordinates = []
+        self.coordinates_state = []
     
     def __repr__(self):
         return "O" * self.size
@@ -103,9 +104,40 @@ class GameMaster:
                     if ship_can_be_placed:
                         for i in range(ship.size):
                             ship.coordinates.append([x, y + i])
+                            ship.coordinates_state.append("OK")
                             self.hidden_board[x][y + i] = "O"
                         
                         is_ship_placed = True
+    
+    def display_board(self, board_to_show: list):
+        print("       A  B  C  D  E  F  G  H  I  J" + "\n")
+        for l_index, line in enumerate(board_to_show):
+            for c_index, column in enumerate(line):
+                if c_index == 0:
+                    if l_index == (len(board_to_show) - 1):
+                        print(str(l_index + 1) + "     ", end = "")
+                    else:
+                        print(" " + str(l_index + 1) + "     ", end = "")
+                if c_index == (len(line) - 1):
+                    print(column)
+                else:
+                    print(column + "  ", end = "")
+
+    def display_game_window(self):
+        print("Welcome to Battleship (the Single-Player Terminal-Based Version)!")
+        print()
+        print("Shoot: Type a letter from A to J followed by a space and a number from 1 to 10;")
+        print("~ The one to give the final shot at a ship keeps all of its points (100 / tile).")
+        print()
+        self.display_board(self.board)
+        print()
+        # Make this part dynamic.
+        print("Ships Remaining: 4x (O  O) ; 3x (O  O  O) ; 2x (O  O  O  O) ; 1x (O  O  O  O  O)")
+        print("Score Board:")
+        print("~ Player:    {player_score}".format(player_score = self.player.score))
+        print("~ Adversary: {adversary_score}".format(adversary_score = self.adversary.score))
+        print()
+        print("~> Where do you want to shoot? ")
 
 # TESTING PHASE
 
@@ -117,3 +149,11 @@ print(gm.ships)
 print()
 print(gm.hidden_board)
 print()
+for ship in gm.ships:
+    print(ship.coordinates)
+print()
+gm.display_board(gm.board)
+print()
+gm.display_board(gm.hidden_board)
+print()
+gm.display_game_window()
