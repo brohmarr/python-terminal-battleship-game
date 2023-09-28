@@ -19,180 +19,176 @@ import random as rnd
 
 # This class holds the data for the ships that will be hidden.
 class Ship:
-    # Initializing the ship attributes.
-    def __init__(self, size: int):
-        self.size = size
+  # Initializing the ship attributes.
+  def __init__(self, size: int):
+    self.size = size
 
-        # Used to know if the ship should be placed horizontally (0) or vertically (1).
-        self.angle = rnd.randint(0, 1)
+    # Used to know if the ship should be placed horizontally (0) or vertically (1).
+    self.angle = rnd.randint(0, 1)
 
-        # The coordinates of the ship.
-        self.coordinates = []
+    # The coordinates of the ship.
+    self.coordinates = []
 
-        # Used to know if an specific coordinate of the ship was "hit" or is "ok".
-        self.coordinates_state = []
+    # Used to know if an specific coordinate of the ship was "hit" or is "ok".
+    self.coordinates_state = []
     
-    # Settings the print option to the size of the ship using the
-    #     character "O".
-    def __repr__(self):
-        return "O" * self.size
+  # Settings the print option to the size of the ship using the character "O".
+  def __repr__(self):
+    return "O" * self.size
 
 # This class holds the data for the player's opponent.
 class AdversaryAI:
-    # Initializing the adversary attributes.
-    def __init__(self):
-        self.name = "General Robson"
-        self.score = 0
+  # Initializing the adversary attributes.
+  def __init__(self):
+    self.name = "General Robson"
+    self.score = 0
 
 # This class holds the data for the user.
 class Player:
-    # Initializing the player attributes.
-    def __init__(self, name: str):
-        self.name = name
-        self.score = 0
+  # Initializing the player attributes.
+  def __init__(self, name: str):
+    self.name = name
+    self.score = 0
 
 # This class controls the game loop.
 class GameMaster:
-    # Initializing the game master (GM) attributes.
-    def __init__(self, player_name: str):
-        # Player-related data.
-        self.player = Player(player_name)
-        self.adversary = AdversaryAI()
-        self.turn = "player"
+  # Initializing the game master (GM) attributes.
+  def __init__(self, player_name: str):
+    # Player-related data.
+    self.player = Player(player_name)
+    self.adversary = AdversaryAI()
+    self.turn = "player"
 
-        # Ship-related data.
-        self.ships_sizes_by_quantity = {2: 4, 3: 3, 4: 2, 5: 1}
-        self.ships = []
-        for size in self.ships_sizes_by_quantity.keys():
-            quantity = self.ships_sizes_by_quantity[size]
-            if quantity != 0:
-                for ship in range(quantity):
-                    self.ships.append(Ship(size))
+    # Ship-related data.
+    self.ships_sizes_by_quantity = {2: 4, 3: 3, 4: 2, 5: 1}
+    self.ships = []
+    for size in self.ships_sizes_by_quantity.keys():
+      quantity = self.ships_sizes_by_quantity[size]
+      if quantity != 0:
+        for ship in range(quantity):
+          self.ships.append(Ship(size))
 
-        # Board-related data.
-        self.board_size = [10, 10]
-        self.board = [["*" for i in range(self.board_size[1])]
-                      for i in range(self.board_size[0])]
-        self.hidden_board = [["*" for i in range(self.board_size[1])]
-                             for i in range(self.board_size[0])]
-        
-        # Placing the ships in the board.
-        for ship in self.ships:
-            is_ship_placed = False
-            while not is_ship_placed:
-                # Getting the coordinates to place the current ship into
-                #     the board.
-                if ship.angle == 0:
-                    x = rnd.randint(0, self.board_size[0] - 1 - ship.size)
-                    y = rnd.randint(0, self.board_size[1] - 1)
-                    
-                    # Checking if the coordinates above are occupied
-                    #     (considering the size of the current ship).
-                    ship_can_be_placed = True
-                    for i in range(ship.size):
-                        if self.hidden_board[x + i][y] != "*":
-                            ship_can_be_placed = False
-                            break
-                    
-                    # Placing the ship in the randomized coordinates if
-                    #     they are available.
-                    if ship_can_be_placed:
-                        for i in range(ship.size):
-                            ship.coordinates.append([x + i, y])
-                            ship.coordinates_state.append("OK")
-                            self.hidden_board[x + i][y] = "O"
-                        
-                        is_ship_placed = True
-                else:
-                    x = rnd.randint(0, self.board_size[0] - 1)
-                    y = rnd.randint(0, self.board_size[1] - 1 - ship.size)
-
-                    ship_can_be_placed = True
-                    for i in range(ship.size):
-                        if self.hidden_board[x][y + i] != "*":
-                            ship_can_be_placed = False
-                            break
-                    
-                    # Now that we know the coordinates are available, place
-                    #     the current ship there.
-                    if ship_can_be_placed:
-                        for i in range(ship.size):
-                            ship.coordinates.append([x, y + i])
-                            ship.coordinates_state.append("OK")
-                            self.hidden_board[x][y + i] = "O"
-                        
-                        is_ship_placed = True
+    # Board-related data.
+    self.board_size = [10, 10]
+    self.board = [["*" for i in range(self.board_size[1])] for i in range(self.board_size[0])]
+    self.hidden_board = [["*" for i in range(self.board_size[1])] for i in range(self.board_size[0])]
     
-    def display_board(self, board_to_show: list):
-        # Display the letters of the board (columns).
-        print("       A  B  C  D  E  F  G  H  I  J" + "\n")
+    # Placing the ships in the board.
+    for ship in self.ships:
+      is_ship_placed = False
+      while not is_ship_placed:
+        if ship.angle == 0:
+          # Getting the coordinates to place the current ship into the board.
+          x = rnd.randint(0, self.board_size[0] - 1 - ship.size)
+          y = rnd.randint(0, self.board_size[1] - 1)
+                    
+          # Checking if the coordinates above are occupied (considering the size of the
+          #     current ship).
+          ship_can_be_placed = True
+          for i in range(ship.size):
+            if self.hidden_board[x + i][y] != "*":
+              ship_can_be_placed = False
+              break
+                    
+          # Placing the ship in the randomized coordinates if they are available.
+          if ship_can_be_placed:
+            for i in range(ship.size):
+              ship.coordinates.append([x + i, y])
+              ship.coordinates_state.append("OK")
+              self.hidden_board[x + i][y] = "O"
+                        
+              is_ship_placed = True
+        else:
+          # Getting the coordinates to place the current ship into the board.
+          x = rnd.randint(0, self.board_size[0] - 1)
+          y = rnd.randint(0, self.board_size[1] - 1 - ship.size)
 
-        # For every line in the board, do...
-        for l_index, line in enumerate(board_to_show):
+          # Checking if the coordinates above are occupied (considering the size of the
+          #     current ship).
+          ship_can_be_placed = True
+          for i in range(ship.size):
+            if self.hidden_board[x][y + i] != "*":
+              ship_can_be_placed = False
+              break
+                    
+          # Placing the ship in the randomized coordinates if they are available.
+          if ship_can_be_placed:
+            for i in range(ship.size):
+              ship.coordinates.append([x, y + i])
+              ship.coordinates_state.append("OK")
+              self.hidden_board[x][y + i] = "O"
+                        
+              is_ship_placed = True
+    
+  def display_board(self, board_to_show: list):
+    # Display the letters of the board (columns).
+    print("       A  B  C  D  E  F  G  H  I  J" + "\n")
 
-            # For every column in the board, do...
-            for c_index, column in enumerate(line):
-
-                # If its the first column...
-                if c_index == 0:
-                    # ... print this way...
-                    if l_index == (len(board_to_show) - 1):
-                        print(str(l_index + 1) + "     ", end = "")
-                    # ... or this way if it's the line number "10".
-                    else:
-                        print(" " + str(l_index + 1) + "     ", end = "")
+    # For every line in the board, do...
+    for l_index, line in enumerate(board_to_show):
+      # For every column in the board, do...
+      for c_index, column in enumerate(line):
+        # If its the first column...
+        if c_index == 0:
+          # ... print this way...
+          if l_index == (len(board_to_show) - 1):
+            print(str(l_index + 1) + "     ", end = "")
+          
+          # ... or this way if it's the line number "10".
+          else:
+            print(" " + str(l_index + 1) + "     ", end = "")
                 
-                # If its the last column, just print its data.
-                if c_index == (len(line) - 1):
-                    print(column)
+        # If its the last column, just print its data.
+        if c_index == (len(line) - 1):
+          print(column)
                 
-                # If its not the last column, print its data + the empty space.
-                else:
-                    print(column + "  ", end = "")
+        # If its not the last column, print its data + the empty space.
+        else:
+          print(column + "  ", end = "")
 
-    def display_game_window(self):
-        # Greeting.
-        print("Welcome to Battleship (the Single-Player Terminal-Based Version)!")
-        print()
+  def display_game_window(self):
+    # Greeting.
+    print("Welcome to Battleship (the Single-Player Terminal-Based Version)!")
+    print()
         
-        # Rules.
-        print("Shoot: Type a letter from A to J followed by a space and a number from 1 to 10;")
-        print("~ The one to give the final shot at a ship keeps all of its points (100 / tile).")
-        print()
+    # Rules.
+    print("Shoot: Type a letter from A to J followed by a space and a number from 1 to 10;")
+    print("~ The one to give the final shot at a ship keeps all of its points (100 / tile).")
+    print()
         
-        # Board.
-        self.display_board(self.board)
-        print()
+    # Board.
+    self.display_board(self.board)
+    print()
 
-        # Remaining ships.
-        print("Ships Remaining: ", end = "")
-        ships_remaining_per_size = {}
-        for ship in self.ships:
-            if (len(ship.coordinates) - 2) in ships_remaining_per_size:
-                ships_remaining_per_size[(len(ship.coordinates) - 2)] += 1
-            else:
-                ships_remaining_per_size[(len(ship.coordinates) - 2)] = 1
-        print("{quantity_2}x (O  O) ; {quantity_3}x (O  O  O) ; {quantity_4}x (O  O  O  O) ; {quantity_5}x (O  O  O  O  O)".format(
-            quantity_2 = ships_remaining_per_size[0],
-            quantity_3 = ships_remaining_per_size[1],
-            quantity_4 = ships_remaining_per_size[2],
-            quantity_5 = ships_remaining_per_size[3]
-        ))
+    # Remaining ships.
+    print("Ships Remaining: ", end = "")
+    ships_remaining_per_size = {}
+    for ship in self.ships:
+      if (len(ship.coordinates) - 2) in ships_remaining_per_size:
+        ships_remaining_per_size[(len(ship.coordinates) - 2)] += 1
+      else:
+        ships_remaining_per_size[(len(ship.coordinates) - 2)] = 1
+    print("{quantity_2}x (O  O) ; {quantity_3}x (O  O  O) ; {quantity_4}x (O  O  O  O) ; {quantity_5}x (O  O  O  O  O)".format(
+      quantity_2 = ships_remaining_per_size[0],
+      quantity_3 = ships_remaining_per_size[1],
+      quantity_4 = ships_remaining_per_size[2],
+      quantity_5 = ships_remaining_per_size[3]
+    ))
 
-        # Score board.
-        print("Score Board:")
-        print("~ {player_name}: {player_score}".format(
-            player_name = self.player.name,
-            player_score = self.player.score
-        ))
-        print("~ {adversary_name}: {adversary_score}".format(
-            adversary_name = self.adversary.name,
-            adversary_score = self.adversary.score
-        ))
-        print()
+    # Score board.
+    print("Score Board:")
+    print("~ {player_name}: {player_score}".format(
+      player_name = self.player.name,
+      player_score = self.player.score
+    ))
+    print("~ {adversary_name}: {adversary_score}".format(
+      adversary_name = self.adversary.name,
+      adversary_score = self.adversary.score
+    ))
+    print()
 
-        # Player input line.
-        print("~> Where do you want to shoot? ")
+    # Player input line.
+    print("~> Where do you want to shoot? ")
 
 # TESTING PHASE
 
@@ -209,7 +205,7 @@ print()
 
 # Are the ships being positioned correctly in the board (no overlap)? Yeap!
 for ship in gm.ships:
-    print(ship.coordinates)
+  print(ship.coordinates)
 print()
 gm.display_board(gm.board)
 print()
