@@ -19,17 +19,18 @@ import random as rnd
 
 # This class holds the data for the ships that will be hidden.
 class Ship:
+
   # Initializing the ship attributes.
   def __init__(self, size: int):
     self.size = size
 
-    # Used to know if the ship should be placed horizontally (0) or vertically (1).
+    # Decides if the ship should be placed horizontally (0) or vertically (1).
     self.angle = rnd.randint(0, 1)
 
     # The coordinates of the ship.
     self.coordinates = []
 
-    # Used to know if an specific coordinate of the ship was "hit" or is "ok".
+    # Remembers if an specific coordinate of the ship was "hit" or is "ok".
     self.coordinates_state = []
     
   # Settings the print option to the size of the ship using the character "O".
@@ -38,6 +39,7 @@ class Ship:
 
 # This class holds the data for the player's opponent.
 class AdversaryAI:
+
   # Initializing the adversary attributes.
   def __init__(self):
     self.name = "General Robson"
@@ -45,6 +47,7 @@ class AdversaryAI:
 
 # This class holds the data for the user.
 class Player:
+
   # Initializing the player attributes.
   def __init__(self, name: str):
     self.name = name
@@ -52,6 +55,31 @@ class Player:
 
 # This class controls the game loop.
 class GameMaster:
+
+  # Places a ship in the game board based on their angle.
+  def place_ship(self, ship: Ship, x_axis: int, y_axis: int):
+    is_ship_placed = False
+    while not is_ship_placed:
+      # Getting the coordinates to place the current ship into the board.
+      x = rnd.randint(0, self.board_size[0] - 1 - (ship.size * x_axis))
+      y = rnd.randint(0, self.board_size[1] - 1 - (ship.size * y_axis))
+
+      # Checking if the coordinates above are occupied using the size of the ship.
+      ship_can_be_placed = True
+      for i in range(ship.size):
+        if self.hidden_board[x + (i * x_axis)][y + (i * y_axis)] != "*":
+          ship_can_be_placed = False
+          break
+
+      # Placing the ship in the randomized coordinates if they are available.
+      if ship_can_be_placed:
+        for i in range(ship.size):
+          ship.coordinates.append([x + (i * x_axis), y + (i * y_axis)])
+          ship.coordinates_state.append("OK")
+          self.hidden_board[x + (i * x_axis)][y + (i * y_axis)] = "O"
+
+          is_ship_placed = True
+
   # Initializing the game master (GM) attributes.
   def __init__(self, player_name: str):
     # Player-related data.
@@ -75,51 +103,12 @@ class GameMaster:
     
     # Placing the ships in the board.
     for ship in self.ships:
-      is_ship_placed = False
-      while not is_ship_placed:
-        if ship.angle == 0:
-          # Getting the coordinates to place the current ship into the board.
-          x = rnd.randint(0, self.board_size[0] - 1 - ship.size)
-          y = rnd.randint(0, self.board_size[1] - 1)
-                    
-          # Checking if the coordinates above are occupied (considering the size of the
-          #     current ship).
-          ship_can_be_placed = True
-          for i in range(ship.size):
-            if self.hidden_board[x + i][y] != "*":
-              ship_can_be_placed = False
-              break
-                    
-          # Placing the ship in the randomized coordinates if they are available.
-          if ship_can_be_placed:
-            for i in range(ship.size):
-              ship.coordinates.append([x + i, y])
-              ship.coordinates_state.append("OK")
-              self.hidden_board[x + i][y] = "O"
-                        
-              is_ship_placed = True
-        else:
-          # Getting the coordinates to place the current ship into the board.
-          x = rnd.randint(0, self.board_size[0] - 1)
-          y = rnd.randint(0, self.board_size[1] - 1 - ship.size)
-
-          # Checking if the coordinates above are occupied (considering the size of the
-          #     current ship).
-          ship_can_be_placed = True
-          for i in range(ship.size):
-            if self.hidden_board[x][y + i] != "*":
-              ship_can_be_placed = False
-              break
-                    
-          # Placing the ship in the randomized coordinates if they are available.
-          if ship_can_be_placed:
-            for i in range(ship.size):
-              ship.coordinates.append([x, y + i])
-              ship.coordinates_state.append("OK")
-              self.hidden_board[x][y + i] = "O"
-                        
-              is_ship_placed = True
-    
+      if ship.angle == 0:
+        self.place_ship(ship, 1, 0)
+      else:
+        self.place_ship(ship, 0, 1)
+  
+  # Prints the board to the terminal.
   def display_board(self, board_to_show: list):
     # Display the letters of the board (columns).
     print("       A  B  C  D  E  F  G  H  I  J" + "\n")
@@ -146,6 +135,7 @@ class GameMaster:
         else:
           print(column + "  ", end = "")
 
+  # Prints the whole game information to the terminal.
   def display_game_window(self):
     # Greeting.
     print("Welcome to Battleship (the Single-Player Terminal-Based Version)!")
