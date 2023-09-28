@@ -30,7 +30,7 @@ class Ship:
     # The coordinates of the ship.
     self.coordinates = []
 
-    # Remembers if an specific coordinate of the ship was "hit" or is "ok".
+    # Remembers if an specific coordinate of the ship is "hit" or "ok".
     self.coordinates_state = []
     
   # Settings the print option to the size of the ship using the character "O".
@@ -82,12 +82,12 @@ class GameMaster:
 
   # Initializing the game master (GM) attributes.
   def __init__(self, player_name: str):
-    # Player-related data.
+    # Creating the players (user + AI).
     self.player = Player(player_name)
     self.adversary = AdversaryAI()
     self.turn = "player"
 
-    # Ship-related data.
+    # Creating the ships.
     self.ships_sizes_by_quantity = {2: 4, 3: 3, 4: 2, 5: 1}
     self.ships = []
     for size in self.ships_sizes_by_quantity.keys():
@@ -96,7 +96,7 @@ class GameMaster:
         for ship in range(quantity):
           self.ships.append(Ship(size))
 
-    # Board-related data.
+    # Creating the board.
     self.board_size = [10, 10]
     self.board = [["*" for i in range(self.board_size[1])] for i in range(self.board_size[0])]
     self.hidden_board = [["*" for i in range(self.board_size[1])] for i in range(self.board_size[0])]
@@ -180,29 +180,42 @@ class GameMaster:
     # Player input line.
     print("~> Where do you want to shoot? ")
 
+
 # TESTING PHASE
+def testing():
+  # Is the board setup correct? Yeap!
+  gm = GameMaster("Brohmarr")
 
-# Is the board setup correct? Yeap!
-gm = GameMaster("Brohmarr")
+  # Is the board being printed correctly with and without the ships? Yeap!
+  print(gm.board)
+  print()
+  print(gm.ships)
+  print()
+  print(gm.hidden_board)
+  print()
 
-# Is the board being printed correctly with and without the ships? Yeap!
-print(gm.board)
-print()
-print(gm.ships)
-print()
-print(gm.hidden_board)
-print()
+  # Are the ships being positioned correctly in the board (no overlap)? Yeap!
+  for ship in gm.ships:
+    print(ship.coordinates)
+  print()
+  gm.display_board(gm.board)
+  print()
+  gm.display_board(gm.hidden_board)
+  print()
 
-# Are the ships being positioned correctly in the board (no overlap)? Yeap!
-for ship in gm.ships:
-  print(ship.coordinates)
-print()
-gm.display_board(gm.board)
-print()
-gm.display_board(gm.hidden_board)
-print()
+  # Is the game window being displayed correctly? Yeap!
+  gm.display_game_window()
+  gm.ships.pop(0)
+  gm.display_game_window()
 
-# Is the game window being displayed correctly? Yeap!
-gm.display_game_window()
-gm.ships.pop(0)
-gm.display_game_window()
+# MAIN
+def main():
+  # TODO: Complete this later...
+  pass
+
+
+# Testing the code...
+testing()
+
+# Starting the game...
+#main()
