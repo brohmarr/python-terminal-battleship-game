@@ -8,7 +8,7 @@
 # 
 # [X] Create the "Game Master" class, that will control the game loop;
 # [X] Generate the game board and randomize the positions of the ships;
-# [ ] Display everything correctly in a regular terminal window (80x24);
+# [X] Display everything correctly in a regular terminal window (80x24);
 # [ ] Make the player able to shoot at a specific position in the board;
 # [ ] Create the points system;
 # [ ] Create the "Adversary" (AI) game loop;
@@ -124,31 +124,57 @@ class GameMaster:
                     print(column + "  ", end = "")
 
     def display_game_window(self):
+        # Greeting.
         print("Welcome to Battleship (the Single-Player Terminal-Based Version)!")
         print()
+        
+        # Rules.
         print("Shoot: Type a letter from A to J followed by a space and a number from 1 to 10;")
         print("~ The one to give the final shot at a ship keeps all of its points (100 / tile).")
         print()
+        
+        # Board.
         self.display_board(self.board)
         print()
-        # Make this part dynamic.
-        print("Ships Remaining: 4x (O  O) ; 3x (O  O  O) ; 2x (O  O  O  O) ; 1x (O  O  O  O  O)")
+
+        # Remaining ships.
+        print("Ships Remaining: ", end = "")
+        ships_remaining_per_size = {}
+        for ship in self.ships:
+            if (len(ship.coordinates) - 2) in ships_remaining_per_size:
+                ships_remaining_per_size[(len(ship.coordinates) - 2)] += 1
+            else:
+                ships_remaining_per_size[(len(ship.coordinates) - 2)] = 1
+        print("{quantity_2}x (O  O) ; {quantity_3}x (O  O  O) ; {quantity_4}x (O  O  O  O) ; {quantity_5}x (O  O  O  O  O)".format(
+            quantity_2 = ships_remaining_per_size[0],
+            quantity_3 = ships_remaining_per_size[1],
+            quantity_4 = ships_remaining_per_size[2],
+            quantity_5 = ships_remaining_per_size[3]
+        ))
+
+        # Score board.
         print("Score Board:")
         print("~ Player:    {player_score}".format(player_score = self.player.score))
         print("~ Adversary: {adversary_score}".format(adversary_score = self.adversary.score))
         print()
+
+        # Player input line.
         print("~> Where do you want to shoot? ")
 
 # TESTING PHASE
 
 # Is the board setup correct? Yeap!
 gm = GameMaster("Brohmarr")
+
+# Is the board being printed correctly with and without the ships?
 print(gm.board)
 print()
 print(gm.ships)
 print()
 print(gm.hidden_board)
 print()
+
+# Are the ships being positioned correctly in the board (no overlap)?
 for ship in gm.ships:
     print(ship.coordinates)
 print()
@@ -156,4 +182,8 @@ gm.display_board(gm.board)
 print()
 gm.display_board(gm.hidden_board)
 print()
+
+# Is the game window being displayed correctly?
+gm.display_game_window()
+gm.ships.pop(0)
 gm.display_game_window()
