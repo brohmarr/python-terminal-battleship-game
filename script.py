@@ -10,7 +10,7 @@
 # [X] Generate the game board and randomize the positions of the ships;
 # [X] Display everything correctly in a regular terminal window (80x24);
 # [X] Make the player able to shoot at a specific position in the board;
-# [ ] Create the points system;
+# [X] Create the points system;
 # [ ] Create the "Adversary" (AI) game loop;
 # [ ] Make sure the game is finished when the last ship is destroyed.
 
@@ -108,6 +108,8 @@ class GameMaster:
       else:
         self.place_ship(ship, 0, 1)
   
+  # Displays the last line of the game window, where the user will type in
+  #     the coordinates.
   def display_player_input_line(self, message: str = "~> Where do you want to shoot? "):
     print(message, end = "")
 
@@ -118,6 +120,7 @@ class GameMaster:
       x = coord[0]
       y = coord[1]
       self.board[x][y] = 'x'
+    self.player.score += ship.size * 100
     self.ships.pop(self.ships.index(ship))
 
   # Changes the game board to be the same as the randomly generated hidden
