@@ -9,7 +9,7 @@
 # [X] Create the "Game Master" class, that will control the game loop;
 # [X] Generate the game board and randomize the positions of the ships;
 # [X] Display everything correctly in a regular terminal window (80x24);
-# [ ] Make the player able to shoot at a specific position in the board;
+# [X] Make the player able to shoot at a specific position in the board;
 # [ ] Create the points system;
 # [ ] Create the "Adversary" (AI) game loop;
 # [ ] Make sure the game is finished when the last ship is destroyed.
@@ -17,7 +17,7 @@
 
 import random as rnd
 
-# This class holds the data for the ships that will be hidden.
+# This class holds the data for the ships.
 class Ship:
 
   # Initializing the ship attributes.
@@ -111,17 +111,20 @@ class GameMaster:
   def display_player_input_line(self, message: str = "~> Where do you want to shoot? "):
     print(message, end = "")
 
-  # TODO: Comment this!
+  # Changes the ship representation from 'o's to 'x's and removes it from
+  #     the list of remaining ships.
   def destroy_ship(self, ship: Ship):
-    for coordinates in ship:
-      x = coordinates[0]
-      y = coordinates[1]
+    for coord in ship.coordinates:
+      x = coord[0]
+      y = coord[1]
       self.board[x][y] = 'x'
-    self.ships.pop(ship)
+    self.ships.pop(self.ships.index(ship))
 
-  # TODO: Comment this!
+  # Changes the game board to be the same as the randomly generated hidden
+  #     one at the coordinates received.
   def update_board(self, x: int, y: int):
-    # Setting the "displayed board" to be equal the randomly generated one, with the ships.
+    # Setting the "displayed board" to be equal the randomly generated
+    #     one, with the ships.
     self.board[x][y] = self.hidden_board[x][y]
 
     # Checking if a ship was hit, to update its status.
@@ -140,10 +143,7 @@ class GameMaster:
               self.destroy_ship(ship)
 
   # Prints the board to the terminal.
-  def display_board(self, board_to_show: list):
-    # Adding a blank line just for precaution...
-    print()
-    
+  def display_board(self, board_to_show: list):  
     # Display the letters of the board (columns).
     print("       A  B  C  D  E  F  G  H  I  J" + "\n")
 
@@ -171,6 +171,9 @@ class GameMaster:
 
   # Prints the whole game information to the terminal.
   def display_game_window(self):
+    # Adding a blank line just for precaution...
+    print()
+
     # Greeting.
     print("Welcome to Battleship (the Single-Player Terminal-Based Version)!")
     print()
@@ -211,45 +214,74 @@ class GameMaster:
     ))
     print()
 
-  # TODO: Comment this later!
-  def convert_input_to_coordinates(self, coord_to_shoot: str) -> tuple:
-    letters_to_numbers = {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6, 'g': 7, 'h': 8, 'i': 9, 'j': 10}
-    
-    # Separating the x axis from the y axis.
-    coords = coord_to_shoot.split()
+  # Checks if the received coordinates are valid or not.
+  def check_if_coordinates_are_valid(self, possible_letters: dict, possible_numbers: range, x: str, y: int) -> bool:
+    if x in possible_letters.keys() and y in possible_numbers:
+      return True
+    else:
+      return False
 
-    # Transforming the letter from the x axis to an integer.
-    x = letters_to_numbers[coords[0].lower()]
-    
-    # Transforming the "string number" from the y axis to an integer.
-    y = int(coords[1])
-
-    if self.check_if_coordinates_are_valid(x, y):
-      return x, y
-
-  # TODO: Comment this later!
-  def check_if_coordinates_are_valid(self, x: int, y: int) -> bool:
+  # Checks if the received coordinates are valid or not.
+  def check_if_coordinates_are_targetable(self, x: int, y: int) -> bool:
     x -= 1
-    y -=1
+    y -= 1
 
     if self.board[x][y] == '~' or self.board[x][y] == 'x' or self.board[x][y] == 'o':
-      self.display_board(self.board)
-      self.display_player_input_line("These coordinates were already targeted. Please, choose another one: ")
-      
       return False
     
     else:
       return True
 
-  # TODO: Comment this!
+  # Converts the string input received from the user to 'x' and 'y' coordinates.
+  def convert_input_to_coordinates(self, coord_to_shoot: str) -> tuple:
+    while True:
+      letters_to_numbers = {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6, 'g': 7, 'h': 8, 'i': 9, 'j': 10}
+
+      # Separating the x axis from the y axis.
+      coords = coord_to_shoot.split()
+
+      # Making sute the input is valid.
+      while len(coords) < 2:
+        self.display_game_window()
+        self.display_player_input_line("These coordinates are not valid. Please, choose another one: ")
+        coord_to_shoot = input()
+        
+        coords = coord_to_shoot.split()
+        if len(coords) >= 2 and not coords[1].isdigit():
+          coord_to_shoot = ""
+          coords = []
+
+      if self.check_if_coordinates_are_valid(letters_to_numbers, range(1, 11), coords[0].lower(), int(coords[1])):
+        # Transforming the letter from the x axis to an integer.
+        y = letters_to_numbers[coords[0].lower()]
+        
+        # Transforming the "string number" from the y axis to an integer.
+        x = int(coords[1])
+
+        if self.check_if_coordinates_are_targetable(x, y):
+          return x, y
+        
+        else:
+          self.display_game_window()
+          self.display_player_input_line("These coordinates were already targeted. Please, choose another one: ")
+          coord_to_shoot = input()
+
+      else:
+        self.display_game_window()
+        self.display_player_input_line("These coordinates are not valid. Please, choose another one: ")
+        coord_to_shoot = input()
+
+  # Displays what was hidden in the chosen coordinates. 
   def shoot_at_coordinates(self, x: int, y: int):
     is_shot_fired = False
     while not is_shot_fired:
       # Checking if the received coordinates have not been targeted before.
-      if self.check_if_coordinates_are_valid(x, y):
+      if self.check_if_coordinates_are_targetable(x, y):
         self.update_board(x - 1, y - 1)
         is_shot_fired = True
       else:
+        self.display_game_window()
+        self.display_player_input_line("These coordinates were already targeted. Please, choose another one: ")
         new_coords = input()
         x, y = self.convert_input_to_coordinates(new_coords)
 
@@ -279,18 +311,29 @@ def testing():
   print()
 
   # Is the game window being displayed correctly? Yeap!
-  gm.display_game_window()
-  gm.ships.pop(0)
-  gm.display_game_window()
-  gm.display_player_input_line()
-  print()
+  # gm.display_game_window()
+  # gm.ships.pop(0)
+  # gm.display_game_window()
+  # gm.display_player_input_line()
+  # print()
 
-  # Is the shoot function working?
+  # Is the shoot function working? Yeap!
   gm.shoot_at_coordinates(5, 5)
   gm.display_game_window()
   gm.display_player_input_line()
 
-  # Is the player able to shoot?
+  # Is the player able to shoot? Yeap!
+  gm.shoot_at_coordinates(5, 5)
+
+  # Is the ship destroyable?
+  while len(gm.ships) == 10:
+    gm.display_game_window()
+    gm.display_player_input_line()
+    target = input()
+    x, y = gm.convert_input_to_coordinates(target)
+    gm.shoot_at_coordinates(x, y)
+  gm.display_game_window()
+  print(gm.ships)
 
 # MAIN
 def main():
