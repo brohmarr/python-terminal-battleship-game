@@ -113,14 +113,23 @@ class GameMaster:
   def display_player_input_line(self, message: str = "~> Where do you want to shoot? "):
     print(message, end = "")
 
-  # Changes the ship representation from 'o's to 'x's and removes it from
+  # Changes the ship's representation from 'o's to 'x's, add its size * 100
+  #     to the score of the player that destroyed it and removes it from
   #     the list of remaining ships.
   def destroy_ship(self, ship: Ship):
+    # Changing the ship's representation.
     for coord in ship.coordinates:
       x = coord[0]
       y = coord[1]
       self.board[x][y] = 'x'
-    self.player.score += ship.size * 100
+    
+    # Adding to the score board.
+    if self.turn == "player":
+      self.player.score += ship.size * 100
+    else:
+      self.adversary.score += ship.size * 100
+
+    # Removing the ship from the game.
     self.ships.pop(self.ships.index(ship))
 
   # Changes the game board to be the same as the randomly generated hidden
