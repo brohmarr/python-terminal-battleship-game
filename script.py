@@ -45,6 +45,23 @@ class AdversaryAI:
     self.name = "General Robson"
     self.score = 0
     self.last_shot = []
+    self.favorable_targets = []
+
+  # Controls the game loop for the adversary.
+  def choose_a_target(self, untargeted_board: list) -> tuple:
+    # Checking if they can shoot close to a favorable target...
+    if len(self.favorable_targets) != 0:
+      for target in self.favorable_targets:
+        possible_targets = [[target[0] - 1, target[1]], [target[0], target[1] + 1], [target[0] + 1, target[1]], [target[0], target[1] - 1]]
+        for possible_target in possible_targets:
+          if possible_target in untargeted_board:
+            return possible_target[0], possible_target[1]
+    
+    # ... or have to shoot at a random one.
+    else:
+      coords_to_shoot = rnd.choice(untargeted_board)
+      
+      return coords_to_shoot[0], coords_to_shoot[1]
 
 # This class holds the data for the user.
 class Player:
@@ -106,6 +123,10 @@ class GameMaster:
     self.board_size = [10, 10]
     self.board = [['*' for i in range(self.board_size[1])] for i in range(self.board_size[0])]
     self.hidden_board = [['~' for i in range(self.board_size[1])] for i in range(self.board_size[0])]
+    self.untargeted_board_coordinates = []
+    for x in range(self.board_size[0]):
+      for y in range(self.board_size[1]):
+        self.untargeted_board_coordinates.append([x, y])
     
     # Placing the ships in the board.
     for ship in self.ships:
@@ -128,6 +149,9 @@ class GameMaster:
       x = coord[0]
       y = coord[1]
       self.board[x][y] = 'x'
+      if [x, y] in self.adversary.favorable_targets:
+        index_to_pop = self.adversary.favorable_targets.index([x, y])
+        self.adversary.favorable_targets.pop(index_to_pop)
     
     # Adding to the score board.
     if self.turn == "player":
@@ -148,14 +172,20 @@ class GameMaster:
     # Setting the "displayed board" to be equal the randomly generated
     #     one, with the ships.
     self.board[x][y] = self.hidden_board[x][y]
+    print(str(x) + " and " + str(y))
+    index_to_pop = self.untargeted_board_coordinates.index([y, x])
+    self.untargeted_board_coordinates.pop(index_to_pop)
     
-    # Saving the coordinates of the current player's last successful shot.
+    # Saving the coordinates of the current player's last successful shot and
+    #     changing turns.
     numbers_to_letters = {1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h', 9: 'i', 10: 'j'}
     
     if self.turn == "player":
       self.player.last_shot = [numbers_to_letters[y + 1].upper(), x + 1]
+      self.turn = "adversary"
     else:
-      self.adversary.last_shot = [x, y]
+      self.adversary.last_shot = [numbers_to_letters[y + 1].upper(), x + 1]
+      self.turn = "player"
 
     # Checking if a ship was hit, to update its status.
     if self.board[x][y] == 'o':
@@ -163,6 +193,7 @@ class GameMaster:
         for coordinate in ship.coordinates:
           if coordinate == [x, y]:
             ship.coordinates_state[ship.coordinates.index([x, y])] = "hit"
+            self.adversary.favorable_targets.append([x, y])
 
             is_ship_destroyed = True
             for state in ship.coordinates_state:
@@ -277,6 +308,9 @@ class GameMaster:
       return False
 
   # Checks if the received coordinates are valid or not.
+
+  # TODO: O PROBLEMA TÁ AQUI!!!!!!
+
   def check_if_coordinates_are_targetable(self, x: int, y: int) -> bool:
     x -= 1
     y -= 1
@@ -337,7 +371,7 @@ class GameMaster:
     while not is_shot_fired:
       # Checking if the received coordinates have not been targeted before.
       if self.check_if_coordinates_are_targetable(x, y):
-        self.update_board(x - 1, y - 1)
+        self.update_board(x, y)
         is_shot_fired = True
       else:
         self.display_game_window()
@@ -459,12 +493,16 @@ def main():
       # Convert it to coordinates in the game board.
       x, y = gm.convert_input_to_coordinates(target)
 
-      # Shoot at those coordinates.
-      gm.shoot_at_coordinates(x, y)
+      # Shoot at those coordinates (subtracted, because the coordinates actually
+      #     start at 0, not 1).
+      gm.shoot_at_coordinates(x - 1, y - 1)
     
     else:
-      # The adversary (AI) make their shot.
-      pass #TODO: Complete this!
+      # The adversary (AI) choose their target...
+      x, y = gm.adversary.choose_a_target(gm.untargeted_board_coordinates)
+
+      # ... and shoot at those coordinates.
+      gm.shoot_at_coordinates(x, y)
 
 
 # Testing the code...
