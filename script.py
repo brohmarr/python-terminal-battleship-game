@@ -11,7 +11,7 @@
 # [X] Display everything correctly in a regular terminal window (80x24);
 # [X] Make the player able to shoot at a specific position in the board;
 # [X] Create the points system;
-# [ ] Create the "Adversary" (AI) game loop;
+# [X] Create the "Adversary" (AI) game loop;
 # [X] Make sure the game is finished when the last ship is destroyed.
 
 
@@ -154,7 +154,7 @@ class GameMaster:
         self.adversary.favorable_targets.pop(index_to_pop)
     
     # Adding to the score board.
-    if self.turn == "player":
+    if self.turn == "adversary":
       self.player.score += ship.size * 100
     else:
       self.adversary.score += ship.size * 100
@@ -173,7 +173,7 @@ class GameMaster:
     #     one, with the ships.
     self.board[x][y] = self.hidden_board[x][y]
     print(str(x) + " and " + str(y))
-    index_to_pop = self.untargeted_board_coordinates.index([y, x])
+    index_to_pop = self.untargeted_board_coordinates.index([x, y])
     self.untargeted_board_coordinates.pop(index_to_pop)
     
     # Saving the coordinates of the current player's last successful shot and
@@ -301,25 +301,19 @@ class GameMaster:
     print()
 
   # Checks if the received coordinates are valid or not.
-  def check_if_coordinates_are_valid(self, possible_letters: dict, possible_numbers: range, x: str, y: int) -> bool:
-    if x in possible_letters.keys() and y in possible_numbers:
+  def check_if_coordinates_are_valid(self, possible_letters: dict, possible_numbers: range, x: str, y: str) -> bool:
+    if x in possible_letters.keys() and y.isnumeric() and int(y) in possible_numbers:
       return True
     else:
       return False
 
   # Checks if the received coordinates are valid or not.
-
-  # TODO: O PROBLEMA TÁ AQUI!!!!!!
-
   def check_if_coordinates_are_targetable(self, x: int, y: int) -> bool:
-    x -= 1
-    y -= 1
-
-    if self.board[x][y] == '~' or self.board[x][y] == 'x' or self.board[x][y] == 'o':
-      return False
+    if [x, y] in self.untargeted_board_coordinates:
+      return True
     
     else:
-      return True
+      return False
 
   # Converts the string input received from the user to 'x' and 'y' coordinates.
   def convert_input_to_coordinates(self, coord_to_shoot: str) -> tuple:
@@ -338,12 +332,15 @@ class GameMaster:
         # Checking if the input was given following the correct instructions:
         #     [LETTER][SPACE][NUMBER]
         coords = coord_to_shoot.split()
-        if len(coords) >= 2 and not coords[1].isdigit():
-          coord_to_shoot = ""
-          coords = []
+        if len(coords) >= 2:
+          print("GOT HERE")
+          if not (coords[0] in letters_to_numbers.keys()) or (not coords[1].isnumeric()):
+            print("GOT HERE AGAIN")
+            coord_to_shoot = ""
+            coords = []
 
       # Checking if the coordinates received are valid.
-      if self.check_if_coordinates_are_valid(letters_to_numbers, range(1, 11), coords[0].lower(), int(coords[1])):
+      if self.check_if_coordinates_are_valid(letters_to_numbers, range(1, 11), coords[0].lower(), coords[1]):
         # Transforming the letter from the x axis to an integer.
         y = letters_to_numbers[coords[0].lower()]
         
@@ -351,8 +348,8 @@ class GameMaster:
         x = int(coords[1])
 
         # Checking if the coordinates have already been hit.
-        if self.check_if_coordinates_are_targetable(x, y):
-          return x, y
+        if self.check_if_coordinates_are_targetable(x - 1, y - 1):
+          return x - 1, y - 1
         
         else:
           self.display_game_window()
@@ -383,6 +380,12 @@ class GameMaster:
   
   # Ends the game.
   def game_over_message(self):
+    # Clearing the rest of the game board (unknown -> water).
+    for line in self.board:
+      for column in self.board:
+        if column == '*':
+          self.board[line][column] = '~'
+
     # Checking who was the winner (the one with the highest score).
     winner = Player("None")
     if self.player.score > self.adversary.score:
@@ -495,7 +498,7 @@ def main():
 
       # Shoot at those coordinates (subtracted, because the coordinates actually
       #     start at 0, not 1).
-      gm.shoot_at_coordinates(x - 1, y - 1)
+      gm.shoot_at_coordinates(x, y)
     
     else:
       # The adversary (AI) choose their target...
