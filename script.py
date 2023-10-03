@@ -4,16 +4,6 @@
 # A single-player terminal-based version of the famous "Battleship" game
 #     where the user plays against an IA.
 
-# TODOs:
-# 
-# [X] Create the "Game Master" class, that will control the game loop;
-# [X] Generate the game board and randomize the positions of the ships;
-# [X] Display everything correctly in a regular terminal window (80x24);
-# [X] Make the player able to shoot at a specific position in the board;
-# [X] Create the points system;
-# [X] Create the "Adversary" (AI) game loop;
-# [X] Make sure the game is finished when the last ship is destroyed.
-
 
 import random as rnd
 
@@ -153,7 +143,7 @@ class GameMaster:
         index_to_pop = self.adversary.favorable_targets.index([x, y])
         self.adversary.favorable_targets.pop(index_to_pop)
     
-    # Adding to the score board.
+    # Adding to the scoreboard.
     if self.turn == "adversary":
       self.player.score += ship.size * 100
     else:
@@ -230,6 +220,7 @@ class GameMaster:
         else:
           print(column + "  ", end = "")
 
+  # Formats the players' score to always have 4 digits.
   def format_score(self, score: int) -> str:
     str_score = str(score)
     final_str = ""
@@ -285,8 +276,8 @@ class GameMaster:
       quantity_5 = ships_remaining_per_size[5]
     ))
 
-    # Score board.
-    print("Score Board: {player_name} ({player_score}) - {player_last_shot}, {adversary_name} ({adversary_score}) - {adversary_last_shot}".format(
+    # Scoreboard.
+    print("Scoreboard: {player_name} ({player_score}) - {player_last_shot}, {adversary_name} ({adversary_score}) - {adversary_last_shot}".format(
       player_name = self.player.name,
       player_score = self.format_score(self.player.score),
       player_last_shot = self.player.last_shot,
@@ -410,76 +401,6 @@ class GameMaster:
     self.game_over = True
 
 
-# TESTING PHASE
-# def testing():
-#   # Is the board setup correct? Yeap!
-#   gm = GameMaster()
-
-#   # Is the board being printed correctly with and without the ships? Yeap!
-#   print(gm.board)
-#   print()
-#   print(gm.ships)
-#   print()
-#   print(gm.hidden_board)
-#   print()
-
-#   # Are the ships being positioned correctly in the board (no overlap)? Yeap!
-#   for ship in gm.ships:
-#     print(ship.coordinates)
-#   print()
-#   gm.display_board(gm.board)
-#   print()
-#   gm.display_board(gm.hidden_board)
-#   print()
-
-#   # Is the game window being displayed correctly? Yeap!
-#   # gm.display_game_window()
-#   # gm.ships.pop(0)
-#   # gm.display_game_window()
-#   # gm.display_player_input_line()
-#   # print()
-
-#   # Is the shoot function working? Yeap!
-#   gm.shoot_at_coordinates(5, 5)
-#   gm.display_game_window()
-#   gm.display_player_input_line()
-
-#   # Is the player able to shoot? Yeap!
-#   gm.shoot_at_coordinates(5, 5)
-
-#   # Is the ship destroyable?
-#   while len(gm.ships) == 10:
-#     gm.display_game_window()
-#     gm.display_player_input_line()
-#     target = input()
-#     x, y = gm.convert_input_to_coordinates(target)
-#     gm.shoot_at_coordinates(x, y)
-#   gm.display_game_window()
-#   print(gm.ships)
-
-# TESTING THE GAME OVER FUNCTION
-# def testing_game_over():
-#   gm = GameMaster()
-  
-#   gm.ships = [gm.ships[0]]
-  
-#   print(gm.ships[0].coordinates)
-
-#   while not gm.game_over:
-#     # Display the game window.
-#     gm.display_game_window()
-#     gm.display_player_input_line()
-    
-#     # Get the player input.
-#     target = input()
-    
-#     # Convert it to coordinates in the game board.
-#     x, y = gm.convert_input_to_coordinates(target)
-    
-#     # Shoot at those coordinates.
-#     gm.shoot_at_coordinates(x, y)
-
-
 # MAIN
 def main():
   gm = GameMaster()
@@ -507,10 +428,6 @@ def main():
       # ... and shoot at those coordinates.
       gm.shoot_at_coordinates(x, y)
 
-
-# Testing the code...
-#testing()
-#testing_game_over()
 
 # Starting the game...
 main()
