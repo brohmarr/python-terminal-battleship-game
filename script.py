@@ -2,7 +2,7 @@
 # by: @Brohmarr
 
 # A single-player terminal-based version of the famous "Battleship" game
-#     where the user plays against an IA.
+#     where the user plays against an AI.
 
 
 import random as rnd
