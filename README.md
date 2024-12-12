@@ -2,7 +2,7 @@
 
 🔵 **Status:** Done
 
-## Screenshot
+## Screenshot (Running in a GNOME Terminal Window)
 
 ![A screenshot of the game running in the terminal.](screenshot.png "Screenshot")
 
