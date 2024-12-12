@@ -1,6 +1,8 @@
 # The Battleship Game with Python
-## Background
-I needed an idea to start a project that would test my knowledge so far in Codecademy's Computer Science Career Path, so I decided to try building a single-player version of the famous Battleship game that runs in the terminal.
+
+🔵 **Status:** Done
+
+## Screenshot
 
 ![A screenshot of the game running in the terminal.](screenshot.png "Screenshot")
 
